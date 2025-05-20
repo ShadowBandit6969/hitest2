@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interaktive Ausstellung</title>
+  
+  <style>
+    /* Grundlayout */
+    body, html {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden; /* Verhindert Scrollen */
+    }
+
+    /* Willkommen-Bildschirm */
+    #welcomeScreen, #loadingScreen1, #loadingScreen2, #qrScreen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: black;
+      transition: opacity 1s ease;
+    }
+
+    #welcomeScreen h1 {
+      font-size: 3em;
+      font-weight: bold;
+    }
+
+    /* Button-Menüs */
+    #menu1, #menu2 {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      max-width: 600px;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+
+    .button {
+      width: 45%;
+      padding: 20px;
+      background-color: rgb(56, 56, 56);
+      color: rgb(255, 255, 255);
+      font-size: 1.5em;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 8px;
+      z-index: 20;
+    }
+
+    /* Ladebildschirm */
+    .loadingContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+/* CSS-Anpassungen */
+
+.loadingBarWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.loadingBarContainer {
+  width: 150px; /* Kürzere Ladeleiste */
+  background-color: white;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.loadingBar {
+  width: 0;
+  height: 100%;
+  background-color: black;
+}
+
+.loadingText {
+  font-size: 1.2em;
+  text-align: center;
+  margin-bottom: 5px; /* Abstand zwischen Text und Ladeleiste */
+}
+
+    /* Diashow-Bereich */
+    #slideshow {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    #slideshow img {
+      width: 100%; /* Breite 100% */
+      height: 100%; /* Höhe 100% */
+      object-fit: cover; /* Dehnt das Bild, um den Container zu füllen */
+      opacity: 1; /* Setzt die Transparenz auf 10% */
+      position: absolute; /* Absolute Positionierung */
+      transition: opacity 0.01s ease; /* Sanfter Übergang zwischen den Bildern */
+    }
+
+    #slideshow2 {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+  }
+
+  /* Anpassungen für Bilder in der zweiten Diashow */
+  #slideshow2 img {
+    width: 100%; /* Breite 100% */
+      height: 100%; /* Höhe 100% */
+      object-fit: cover; /* Dehnt das Bild, um den Container zu füllen */
+      opacity: 1; /* Setzt die Transparenz auf 10% */
+      position: absolute; /* Absolute Positionierung */
+      transition: opacity 0.1s ease; /* Sanfter Übergang zwischen den Bildern */
+  }
+
+  #qrScreen {
+  display: flex; /* Ändere zu flex, um Zentrierung zu gewährleisten */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* Stellt sicher, dass es die volle Höhe des Containers einnimmt */
+}
+
+#qrImage {
+  width: 200px; /* Feste Breite für den QR-Code */
+  height: auto; /* Proportionen des QR-Codes beibehalten */
+  margin-bottom: 20px;
+}
+
+#restartButton {
+  width: auto; /* Passt die Breite an den Text an */
+  padding: 15px 30px; /* Mehr Polsterung für eine einfachere Bedienung */
+  background-color: #ffffff; /* Weißer Hintergrund für besseren Kontrast */
+  color: #000000; /* Schwarzer Text */
+  font-size: 1.2em;
+  border-radius: 8px;
+  border: none; /* Entfernt optional die Umrandung */
+  transition: background-color 0.3s ease;
+}
+
+#restartButton:hover {
+  background-color: #e0e0e0; /* Hellerer Hover-Effekt */
+}
+
+
+
+
+
+
+/* Container für die Funken */
+.sparkles-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Damit die Funken keine Interaktion blockieren */
+  z-index: 0; /* Funken hinter den Buttons */
+}
+
+/* Die Funken selbst */
+.spark {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #ff4500; /* Feuriges Rot */
+  opacity: 0;
+  box-shadow: 0 0 10px rgba(255, 69, 0, 0.8), 0 0 20px rgba(255, 69, 0, 0.6);
+  animation: fly 2s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards, fade 2s forwards;
+}
+
+
+
+/* Funken fliegen mit Animation */
+@keyframes fly {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: translateX(var(--random-x)) translateY(var(--random-y)) scale(1.5);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(var(--random-x)) translateY(var(--random-y)) scale(1.2);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translateX(var(--random-x)) translateY(var(--random-y)) scale(0.8);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(var(--random-x)) translateY(var(--random-y)) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes fade {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Funkenfarben variieren */
+.spark:nth-child(odd) {
+  background-color: #b22222; /* Dunkelrot */
+}
+
+.spark:nth-child(even) {
+  background-color: #d2691e; /* Ziegelrot */
+}
+
+
+
+
+
+/* Nebel-Container */
+.fog-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh; /* Der Nebel füllt nun den gesamten Bildschirm */
+  pointer-events: none;
+  z-index: 0; /* Nebel hinter den Funken und Buttons */
+  overflow: hidden;
+}
+
+/* Canvas Stil */
+#fogCanvas {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0; /* Hinter den anderen Elementen */
+}
+
+
+
+
+
+
+  </style>
+</head>
+<body>
+
+
+  <div id="welcomeScreen">
+
+    <h1>AI Monetization</h1>
+  </div>
+
+  <div id="menu1" style="display: none;">
+    <div class="button" onclick="selectOption('WW2')">WW2</div>
+    <div class="button" onclick="selectOption('WW1')">WW1</div>
+    <div class="button" onclick="selectOption('Funny History')">Funny History</div>
+    <div class="button" onclick="selectOption('Crazy History')">Crazy History</div>
+    <div class="sparkles-container"></div>
+    <div class="fog-container">
+      <canvas id="fogCanvas"></canvas>
+  </div>
+  </div>
+  <div id="loadingScreen1" style="display: none;">
+    <div class="loadingContainer">
+      <div class ="loadingBarWrapper">
+      <div class="loadingBarContainer">
+        <div class="loadingBar" id="loadingBar1"></div>
+      </div>
+      <div class="loadingText" id="loadingText1">Loading... 0%</div>
+    </div></div>
+    <div id="slideshow"></div>
+  </div>
+  
+  <div id="menu2" style="display: none;">
+    <div class="button" onclick="showQRCode('Dark')">Dark</div>
+    <div class="button" onclick="showQRCode('Funny')">Funny</div>
+    <div class="button" onclick="showQRCode('Epic')">Epic</div>
+    <div class="button" onclick="showQRCode('Sad')">Sad</div>
+    <div class="sparkles-container"></div>
+    <div class="fog-container"></div> <!-- Nebel kommt nach den Funken -->
+  </div>
+
+  <div id="loadingScreen2" style="display: none;">
+    <div class="loadingContainer">
+      <div class="loadingBarContainer">
+        <div class="loadingBar" id="loadingBar2"></div>
+      </div>
+      <div class="loadingText" id="loadingText2">Loading... 0%</div>
+    </div>
+    <div id="slideshow2"></div>
+  </div>
+
+  <div id="qrContainer">
+    <div class="sparkles-container"></div>
+  <div id="qrScreen" style="display: none;">
+
+      <img id="qrImage" src="" alt="QR Code">
+      <div id="restartButton" onclick="restart()">Start again</div>
+
+  </div>
+</div>
+
+  <script>
+    let firstSelection = '';
+    let secondSelection = '';
+    let slideshowInterval;
+    let currentImageIndex = 0;
+
+    const slideshowImages = {
+        'WW1': ['Bilder/WW1/1.jpeg', 'Bilder/WW1/2.jpeg', 'Bilder/WW1/3.jpeg','Bilder/WW1/4.jpeg','Bilder/WW1/5.jpeg','Bilder/WW1/6.jpeg',
+          'Bilder/WW1/12.jpeg','Bilder/WW1/11.jpeg','Bilder/WW1/10.jpeg','Bilder/WW1/9.jpeg','Bilder/WW1/8.jpeg','Bilder/WW1/7.jpeg',
+          'Bilder/WW1/13.jpeg','Bilder/WW1/14.jpeg', 'Bilder/WW1/15.jpeg','Bilder/WW1/16.jpeg','Bilder/WW1/17.jpeg','Bilder/WW1/18.jpeg',
+          'Bilder/WW1/19.jpeg','Bilder/WW1/20.jpeg', 'Bilder/WW1/21.jpeg','Bilder/WW1/22.jpeg', 'Bilder/WW1/23.jpeg','Bilder/WW1/24.jpeg', 'Bilder/WW1/25.jpeg',
+        'Bilder/WW1/26.jpeg','Bilder/WW1/27.jpeg','Bilder/WW1/28.jpeg','Bilder/WW1/29.jpeg','Bilder/WW1/30.jpeg','Bilder/WW1/31.jpeg','Bilder/WW1/32.jpeg',
+      'Bilder/WW1/33.jpeg','Bilder/WW1/34.jpeg','Bilder/WW1/35.jpeg','Bilder/WW1/36.jpeg','Bilder/WW1/37.jpeg','Bilder/WW1/38.jpeg','Bilder/WW1/39.jpeg','Bilder/WW1/40.jpeg',
+    'Bilder/WW1/41.jpeg','Bilder/WW1/42.jpeg','Bilder/WW1/42.jpeg','Bilder/WW1/44.jpeg','Bilder/WW1/45.jpeg','Bilder/WW1/46.jpeg','Bilder/WW1/47.jpeg',
+  'Bilder/WW1/48.jpeg','Bilder/WW1/49.jpeg','Bilder/WW1/50.jpeg','Bilder/WW1/51.jpeg','Bilder/WW1/52.jpeg','Bilder/WW1/53.jpeg','Bilder/WW1/54.jpeg','Bilder/WW1/55.jpeg',
+'Bilder/WW1/56.jpeg','Bilder/WW1/57.jpeg','Bilder/WW1/58.jpeg','Bilder/WW1/59.jpeg','Bilder/WW1/60.jpeg','Bilder/WW1/61.jpeg',],
+
+        'WW2': ['Bilder/WW2/ww2_1.jpeg', 'Bilder/WW2/ww2_2.jpeg', 'Bilder/WW2/ww2_3.jpeg', 'Bilder/WW2/ww2_4.jpeg', 'Bilder/WW2/ww2_5.jpeg', 'Bilder/WW2/ww2_6.jpeg', 'Bilder/WW2/ww2_7.jpeg','Bilder/WW2/ww2_8.jpeg', 
+        'Bilder/WW2/ww2_9.jpeg','Bilder/WW2/ww2_10.jpeg','Bilder/WW2/ww2_11.jpeg','Bilder/WW2/ww2_12.jpeg','Bilder/WW2/ww2_13.jpeg','Bilder/WW2/ww2_14.jpeg','Bilder/WW2/ww2_15.jpeg','Bilder/WW2/ww2_16.jpeg','Bilder/WW2/ww2_17.jpeg',
+        'Bilder/WW2/ww2_18.jpeg','Bilder/WW2/ww2_19.jpeg','Bilder/WW2/ww2_20.jpeg','Bilder/WW2/ww2_21.jpeg','Bilder/WW2/ww2_22.jpeg','Bilder/WW2/ww2_23.jpeg','Bilder/WW2/ww2_24.jpeg','Bilder/WW2/ww2_25.jpeg','Bilder/WW2/ww2_26.jpeg',
+      'Bilder/WW2/ww2_27.jpeg','Bilder/WW2/ww2_28.jpeg','Bilder/WW2/ww2_29.jpeg','Bilder/WW2/ww2_30.jpeg','Bilder/WW2/ww2_31.jpeg','Bilder/WW2/ww2_32.jpeg','Bilder/WW2/ww2_33.jpeg','Bilder/WW2/ww2_34.jpeg',
+    'Bilder/WW2/ww2_35.jpeg','Bilder/WW2/ww2_36.jpeg','Bilder/WW2/ww2_37.jpeg','Bilder/WW2/ww2_38.jpeg','Bilder/WW2/ww2_39.jpeg','Bilder/WW2/ww2_40.jpeg','Bilder/WW2/ww2_41.jpeg','Bilder/WW2/ww2_42.jpeg','Bilder/WW2/ww2_43.jpeg',
+  'Bilder/WW2/ww2_44.jpeg','Bilder/WW2/ww2_45.jpeg','Bilder/WW2/ww2_46.jpeg','Bilder/WW2/ww2_47.jpeg','Bilder/WW2/ww2_48.jpeg','Bilder/WW2/ww2_49.jpeg','Bilder/WW2/ww2_50.jpeg','Bilder/WW2/ww2_51.jpeg','Bilder/WW2/ww2_52.jpeg','Bilder/WW2/ww2_53.jpeg',
+'Bilder/WW2/ww2_54.jpeg','Bilder/WW2/ww2_56.jpeg','Bilder/WW2/ww2_57.jpeg','Bilder/WW2/ww2_58.jpeg','Bilder/WW2/ww2_59.jpeg','Bilder/WW2/ww2_60.jpeg','Bilder/WW2/ww2_61.jpeg',],
+
+        'Funny History': ['Bilder/FunnyHistory/1.jpeg', 'Bilder/FunnyHistory/2.jpeg', 'Bilder/FunnyHistory/3.jpeg','Bilder/FunnyHistory/4.jpeg','Bilder/FunnyHistory/5.jpeg',
+          'Bilder/FunnyHistory/6.jpeg','Bilder/FunnyHistory/7.jpeg','Bilder/FunnyHistory/8.jpeg','Bilder/FunnyHistory/9.jpeg','Bilder/FunnyHistory/10.jpeg','Bilder/FunnyHistory/11.jpeg',
+           'Bilder/FunnyHistory/12.jpeg','Bilder/FunnyHistory/13.jpeg','Bilder/FunnyHistory/14.jpeg','Bilder/FunnyHistory/15.jpeg','Bilder/FunnyHistory/16.jpeg','Bilder/FunnyHistory/17.jpeg',
+            'Bilder/FunnyHistory/18.jpeg','Bilder/FunnyHistory/19.jpeg','Bilder/FunnyHistory/20.jpeg','Bilder/FunnyHistory/21.jpeg','Bilder/FunnyHistory/22.jpeg','Bilder/FunnyHistory/23.jpeg',
+            'Bilder/FunnyHistory/24.jpeg','Bilder/FunnyHistory/25.jpeg',],
+
+        'Crazy History': ['Bilder/CrazyHistory/1.jpeg', 'Bilder/CrazyHistory/2.jpeg','Bilder/CrazyHistory/3.jpeg','Bilder/CrazyHistory/4.jpeg',
+          'Bilder/CrazyHistory/19.jpeg','Bilder/CrazyHistory/18.jpeg','Bilder/CrazyHistory/11.jpeg','Bilder/CrazyHistory/10.jpeg','Bilder/CrazyHistory/5.jpeg',
+          'Bilder/CrazyHistory/20.jpeg','Bilder/CrazyHistory/17.jpeg','Bilder/CrazyHistory/12.jpeg','Bilder/CrazyHistory/9.jpeg','Bilder/CrazyHistory/6.jpeg',
+          'Bilder/CrazyHistory/21.jpeg','Bilder/CrazyHistory/16.jpeg','Bilder/CrazyHistory/13.jpeg','Bilder/CrazyHistory/8.jpeg','Bilder/CrazyHistory/7.jpeg',
+          'Bilder/CrazyHistory/22.jpeg','Bilder/CrazyHistory/15.jpeg','Bilder/CrazyHistory/14.jpeg','Bilder/CrazyHistory/23.jpeg', 'Bilder/CrazyHistory/24.jpeg', 'Bilder/CrazyHistory/25.jpeg'
+        ],
+    };
+
+    const slideshowImagesCombinations = {
+        'WW1_Dark': ['Bilder/WW1/Dark/1.jpeg', 'Bilder/WW1/Dark/2.jpeg','Bilder/WW1/Dark/3.jpeg', 'Bilder/WW1/Dark/4.jpeg','Bilder/WW1/Dark/5.jpeg', 
+          'Bilder/WW1/Dark/19.jpeg','Bilder/WW1/Dark/15.jpeg','Bilder/WW1/Dark/14.jpeg','Bilder/WW1/Dark/10.jpeg','Bilder/WW1/Dark/9.jpeg','Bilder/WW1/Dark/6.jpeg',
+          'Bilder/WW1/Dark/18.jpeg','Bilder/WW1/Dark/17.jpeg','Bilder/WW1/Dark/12.jpeg','Bilder/WW1/Dark/11.jpeg','Bilder/WW1/Dark/8.jpeg','Bilder/WW1/Dark/7.jpeg',
+          'Bilder/WW1/Dark/20.jpeg','Bilder/WW1/Dark/16.jpeg','Bilder/WW1/Dark/13.jpeg',
+        ], 
+
+        'WW1_Funny': ['Bilder/WW1/Funny/1.jpeg', 'Bilder/WW1/Funny/2.jpeg','Bilder/WW1/Funny/3.jpeg', 'Bilder/WW1/Funny/4.jpeg','Bilder/WW1/Funny/5.jpeg', 
+          'Bilder/WW1/Funny/19.jpeg','Bilder/WW1/Funny/15.jpeg','Bilder/WW1/Funny/14.jpeg','Bilder/WW1/Funny/10.jpeg','Bilder/WW1/Funny/9.jpeg','Bilder/WW1/Funny/6.jpeg',
+          'Bilder/WW1/Funny/18.jpeg','Bilder/WW1/Funny/17.jpeg','Bilder/WW1/Funny/12.jpeg','Bilder/WW1/Funny/11.jpeg','Bilder/WW1/Funny/8.jpeg','Bilder/WW1/Funny/7.jpeg',
+          'Bilder/WW1/Funny/20.jpeg','Bilder/WW1/Funny/16.jpeg','Bilder/WW1/Funny/13.jpeg',
+        ],
+
+        'WW1_Epic': ['Bilder/WW1/Epic/1.jpeg', 'Bilder/WW1/Epic/2.jpeg','Bilder/WW1/Epic/3.jpeg', 'Bilder/WW1/Epic/4.jpeg','Bilder/WW1/Epic/5.jpeg', 
+          'Bilder/WW1/Epic/19.jpeg','Bilder/WW1/Epic/15.jpeg','Bilder/WW1/Epic/14.jpeg','Bilder/WW1/Epic/10.jpeg','Bilder/WW1/Epic/9.jpeg','Bilder/WW1/Epic/6.jpeg',
+          'Bilder/WW1/Epic/18.jpeg','Bilder/WW1/Epic/17.jpeg','Bilder/WW1/Epic/12.jpeg','Bilder/WW1/Epic/11.jpeg','Bilder/WW1/Epic/8.jpeg','Bilder/WW1/Epic/7.jpeg',
+          'Bilder/WW1/Epic/20.jpeg','Bilder/WW1/Epic/16.jpeg','Bilder/WW1/Epic/13.jpeg',
+        ],
+
+        'WW1_Sad': ['Bilder/WW1/Sad/1.jpeg', 'Bilder/WW1/Sad/2.jpeg','Bilder/WW1/Sad/3.jpeg', 'Bilder/WW1/Sad/4.jpeg','Bilder/WW1/Sad/5.jpeg', 
+          'Bilder/WW1/Sad/19.jpeg','Bilder/WW1/Sad/15.jpeg','Bilder/WW1/Sad/14.jpeg','Bilder/WW1/Sad/10.jpeg','Bilder/WW1/Sad/9.jpeg','Bilder/WW1/Sad/6.jpeg',
+          'Bilder/WW1/Sad/18.jpeg','Bilder/WW1/Sad/17.jpeg','Bilder/WW1/Sad/12.jpeg','Bilder/WW1/Sad/11.jpeg','Bilder/WW1/Sad/8.jpeg','Bilder/WW1/Sad/7.jpeg',
+          'Bilder/WW1/Sad/20.jpeg','Bilder/WW1/Sad/16.jpeg','Bilder/WW1/Sad/13.jpeg',
+        ],
+
+        'Funny History_Sad': ['Bilder/FunnyHistory/Sad/1.jpeg', 'Bilder/FunnyHistory/Sad/2.jpeg','Bilder/FunnyHistory/Sad/3.jpeg', 'Bilder/FunnyHistory/Sad/4.jpeg','Bilder/FunnyHistory/Sad/5.jpeg', 
+          'Bilder/FunnyHistory/Sad/19.jpeg','Bilder/FunnyHistory/Sad/15.jpeg','Bilder/FunnyHistory/Sad/14.jpeg','Bilder/FunnyHistory/Sad/10.jpeg','Bilder/FunnyHistory/Sad/9.jpeg','Bilder/FunnyHistory/Sad/6.jpeg',
+          'Bilder/FunnyHistory/Sad/18.jpeg','Bilder/FunnyHistory/Sad/17.jpeg','Bilder/FunnyHistory/Sad/12.jpeg','Bilder/FunnyHistory/Sad/11.jpeg','Bilder/FunnyHistory/Sad/8.jpeg','Bilder/FunnyHistory/Sad/7.jpeg',
+          'Bilder/FunnyHistory/Sad/20.jpeg','Bilder/FunnyHistory/Sad/16.jpeg','Bilder/FunnyHistory/Sad/13.jpeg',
+        ],
+
+        'Funny History_Funny': ['Bilder/FunnyHistory/Funny/1.jpeg', 'Bilder/FunnyHistory/Funny/2.jpeg','Bilder/FunnyHistory/Funny/3.jpeg', 'Bilder/FunnyHistory/Funny/4.jpeg','Bilder/FunnyHistory/Funny/5.jpeg', 
+          'Bilder/FunnyHistory/Funny/19.jpeg','Bilder/FunnyHistory/Funny/15.jpeg','Bilder/FunnyHistory/Funny/14.jpeg','Bilder/FunnyHistory/Funny/10.jpeg','Bilder/FunnyHistory/Funny/9.jpeg','Bilder/FunnyHistory/Funny/6.jpeg',
+          'Bilder/FunnyHistory/Funny/18.jpeg','Bilder/FunnyHistory/Funny/17.jpeg','Bilder/FunnyHistory/Funny/12.jpeg','Bilder/FunnyHistory/Funny/11.jpeg','Bilder/FunnyHistory/Funny/8.jpeg','Bilder/FunnyHistory/Funny/7.jpeg',
+          'Bilder/FunnyHistory/Funny/20.jpeg','Bilder/FunnyHistory/Funny/16.jpeg','Bilder/FunnyHistory/Funny/13.jpeg',
+        ],
+
+        'Funny History_Epic': ['Bilder/FunnyHistory/Epic/1.jpeg', 'Bilder/FunnyHistory/Epic/2.jpeg','Bilder/FunnyHistory/Epic/3.jpeg', 'Bilder/FunnyHistory/Epic/4.jpeg','Bilder/FunnyHistory/Epic/5.jpeg', 
+          'Bilder/FunnyHistory/Epic/19.jpeg','Bilder/FunnyHistory/Epic/15.jpeg','Bilder/FunnyHistory/Epic/14.jpeg','Bilder/FunnyHistory/Epic/10.jpeg','Bilder/FunnyHistory/Epic/9.jpeg','Bilder/FunnyHistory/Epic/6.jpeg',
+          'Bilder/FunnyHistory/Epic/18.jpeg','Bilder/FunnyHistory/Epic/17.jpeg','Bilder/FunnyHistory/Epic/12.jpeg','Bilder/FunnyHistory/Epic/11.jpeg','Bilder/FunnyHistory/Epic/8.jpeg','Bilder/FunnyHistory/Epic/7.jpeg',
+          'Bilder/FunnyHistory/Epic/20.jpeg','Bilder/FunnyHistory/Epic/16.jpeg','Bilder/FunnyHistory/Epic/13.jpeg',
+        ],
+
+        'Funny History_Dark': ['Bilder/FunnyHistory/Dark/1.jpeg', 'Bilder/FunnyHistory/Dark/2.jpeg','Bilder/FunnyHistory/Dark/3.jpeg', 'Bilder/FunnyHistory/Dark/4.jpeg','Bilder/FunnyHistory/Dark/5.jpeg', 
+          'Bilder/FunnyHistory/Dark/19.jpeg','Bilder/FunnyHistory/Dark/15.jpeg','Bilder/FunnyHistory/Dark/14.jpeg','Bilder/FunnyHistory/Dark/10.jpeg','Bilder/FunnyHistory/Dark/9.jpeg','Bilder/FunnyHistory/Dark/6.jpeg',
+          'Bilder/FunnyHistory/Dark/18.jpeg','Bilder/FunnyHistory/Dark/17.jpeg','Bilder/FunnyHistory/Dark/12.jpeg','Bilder/FunnyHistory/Dark/11.jpeg','Bilder/FunnyHistory/Dark/8.jpeg','Bilder/FunnyHistory/Dark/7.jpeg',
+          'Bilder/FunnyHistory/Dark/20.jpeg','Bilder/FunnyHistory/Dark/16.jpeg','Bilder/FunnyHistory/Dark/13.jpeg',
+        ],
+
+        'Crazy History_Dark': ['Bilder/CrazyHistory/Dark/1.jpeg', 'Bilder/CrazyHistory/Dark/2.jpeg','Bilder/CrazyHistory/Dark/3.jpeg', 'Bilder/CrazyHistory/Dark/4.jpeg','Bilder/CrazyHistory/Dark/5.jpeg', 
+          'Bilder/CrazyHistory/Dark/19.jpeg','Bilder/CrazyHistory/Dark/15.jpeg','Bilder/CrazyHistory/Dark/14.jpeg','Bilder/CrazyHistory/Dark/10.jpeg','Bilder/CrazyHistory/Dark/9.jpeg','Bilder/CrazyHistory/Dark/6.jpeg',
+          'Bilder/CrazyHistory/Dark/18.jpeg','Bilder/CrazyHistory/Dark/17.jpeg','Bilder/CrazyHistory/Dark/12.jpeg','Bilder/CrazyHistory/Dark/11.jpeg','Bilder/CrazyHistory/Dark/8.jpeg','Bilder/CrazyHistory/Dark/7.jpeg',
+          'Bilder/CrazyHistory/Dark/20.jpeg','Bilder/CrazyHistory/Dark/16.jpeg','Bilder/CrazyHistory/Dark/13.jpeg',
+        ],
+
+        'Crazy History_Funny': ['Bilder/CrazyHistory/Funny/1.jpeg', 'Bilder/CrazyHistory/Funny/2.jpeg','Bilder/CrazyHistory/Funny/3.jpeg', 'Bilder/CrazyHistory/Funny/4.jpeg','Bilder/CrazyHistory/Funny/5.jpeg', 
+          'Bilder/CrazyHistory/Funny/19.jpeg','Bilder/CrazyHistory/Funny/15.jpeg','Bilder/CrazyHistory/Funny/14.jpeg','Bilder/CrazyHistory/Funny/10.jpeg','Bilder/CrazyHistory/Funny/9.jpeg','Bilder/CrazyHistory/Funny/6.jpeg',
+          'Bilder/CrazyHistory/Funny/18.jpeg','Bilder/CrazyHistory/Funny/17.jpeg','Bilder/CrazyHistory/Funny/12.jpeg','Bilder/CrazyHistory/Funny/11.jpeg','Bilder/CrazyHistory/Funny/8.jpeg','Bilder/CrazyHistory/Funny/7.jpeg',
+          'Bilder/CrazyHistory/Funny/20.jpeg','Bilder/CrazyHistory/Funny/16.jpeg','Bilder/CrazyHistory/Funny/13.jpeg',
+        ],
+
+        'Crazy History_Epic': ['Bilder/CrazyHistory/Epic/1.jpeg', 'Bilder/CrazyHistory/Epic/2.jpeg','Bilder/CrazyHistory/Epic/3.jpeg', 'Bilder/CrazyHistory/Epic/4.jpeg','Bilder/CrazyHistory/Epic/5.jpeg', 
+          'Bilder/CrazyHistory/Epic/19.jpeg','Bilder/CrazyHistory/Epic/15.jpeg','Bilder/CrazyHistory/Epic/14.jpeg','Bilder/CrazyHistory/Epic/10.jpeg','Bilder/CrazyHistory/Epic/9.jpeg','Bilder/CrazyHistory/Epic/6.jpeg',
+          'Bilder/CrazyHistory/Epic/18.jpeg','Bilder/CrazyHistory/Epic/17.jpeg','Bilder/CrazyHistory/Epic/12.jpeg','Bilder/CrazyHistory/Epic/11.jpeg','Bilder/CrazyHistory/Epic/8.jpeg','Bilder/CrazyHistory/Epic/7.jpeg',
+          'Bilder/CrazyHistory/Epic/20.jpeg','Bilder/CrazyHistory/Epic/16.jpeg','Bilder/CrazyHistory/Epic/13.jpeg',
+        ],
+
+        'Crazy History_Sad': ['Bilder/CrazyHistory/Sad/1.jpeg', 'Bilder/CrazyHistory/Sad/2.jpeg','Bilder/CrazyHistory/Sad/3.jpeg', 'Bilder/CrazyHistory/Sad/4.jpeg','Bilder/CrazyHistory/Sad/5.jpeg', 
+          'Bilder/CrazyHistory/Sad/19.jpeg','Bilder/CrazyHistory/Sad/15.jpeg','Bilder/CrazyHistory/Sad/14.jpeg','Bilder/CrazyHistory/Sad/10.jpeg','Bilder/CrazyHistory/Sad/9.jpeg','Bilder/CrazyHistory/Sad/6.jpeg',
+          'Bilder/CrazyHistory/Sad/18.jpeg','Bilder/CrazyHistory/Sad/17.jpeg','Bilder/CrazyHistory/Sad/12.jpeg','Bilder/CrazyHistory/Sad/11.jpeg','Bilder/CrazyHistory/Sad/8.jpeg','Bilder/CrazyHistory/Sad/7.jpeg',
+          'Bilder/CrazyHistory/Sad/20.jpeg','Bilder/CrazyHistory/Sad/16.jpeg','Bilder/CrazyHistory/Sad/13.jpeg',
+        ],
+
+        'WW2_Dark': ['Bilder/WW2Dark/1.jpeg', 'Bilder/WW2Dark/2.jpeg', 'Bilder/WW2Dark/3.jpeg', 'Bilder/WW2Dark/4.jpeg', 'Bilder/WW2Dark/5.jpeg', 'Bilder/WW2Dark/6.jpeg', 'Bilder/WW2Dark/7.jpeg',
+          'Bilder/WW2Dark/8.jpeg',  'Bilder/WW2Dark/9.jpeg',  'Bilder/WW2Dark/10.jpeg',  'Bilder/WW2Dark/11.jpeg',  'Bilder/WW2Dark/12.jpeg',  'Bilder/WW2Dark/13.jpeg',  'Bilder/WW2Dark/14.jpeg', 
+          'Bilder/WW2Dark/15.jpeg',  'Bilder/WW2Dark/16.jpeg',  'Bilder/WW2Dark/17.jpeg',  'Bilder/WW2Dark/18.jpeg',  'Bilder/WW2Dark/19.jpeg',  'Bilder/WW2Dark/20.jpeg', 
+        ],
+
+        'WW2_Funny': ['Bilder/WW2FH/1.jpeg', 'Bilder/WW2FH/2.jpeg', 'Bilder/WW2FH/3.jpeg','Bilder/WW2FH/4.jpeg','Bilder/WW2FH/5.jpeg','Bilder/WW2FH/6.jpeg','Bilder/WW2FH/7.jpeg','Bilder/WW2FH/8.jpeg',
+          'Bilder/WW2FH/9.jpeg','Bilder/WW2FH/12.jpeg','Bilder/WW2FH/13.jpeg','Bilder/WW2FH/14.jpeg','Bilder/WW2FH/15.jpeg','Bilder/WW2FH/16.jpeg','Bilder/WW2FH/17.jpeg',
+          'Bilder/WW2FH/10.jpeg','Bilder/WW2FH/11.jpeg',
+        ],
+
+        'WW2_Epic': ['Bilder/WW2Epic/1.jpeg', 'Bilder/WW2Epic/2.jpeg', 'Bilder/WW2Epic/3.jpeg','Bilder/WW2Epic/4.jpeg','Bilder/WW2Epic/5.jpeg','Bilder/WW2Epic/6.jpeg','Bilder/WW2Epic/7.jpeg','Bilder/WW2Epic/8.jpeg',
+          'Bilder/WW2Epic/9.jpeg','Bilder/WW2Epic/12.jpeg','Bilder/WW2Epic/13.jpeg','Bilder/WW2Epic/14.jpeg','Bilder/WW2Epic/15.jpeg','Bilder/WW2Epic/16.jpeg','Bilder/WW2Epic/17.jpeg',
+          'Bilder/WW2Epic/10.jpeg','Bilder/WW2Epic/11.jpeg',
+        ],
+
+        'WW2_Sad':['Bilder/WW2Sad/d1.jpeg', 'Bilder/WW2Sad/d2.jpeg', 'Bilder/WW2Sad/d3.jpeg', 'Bilder/WW2Sad/d4.jpeg', 'Bilder/WW2Sad/d5.jpeg', 'Bilder/WW2Sad/d6.jpeg', 'Bilder/WW2Sad/d7.jpeg',
+          'Bilder/WW2Sad/d8.jpeg',  'Bilder/WW2Sad/d9.jpeg',  'Bilder/WW2Sad/d10.jpeg',  'Bilder/WW2Sad/d11.jpeg',  'Bilder/WW2Sad/d12.jpeg',  'Bilder/WW2Sad/d13.jpeg',  'Bilder/WW2Sad/d14.jpeg', 
+          'Bilder/WW2Sad/d15.jpeg',  'Bilder/WW2Sad/d16.jpeg',  'Bilder/WW2Sad/d17.jpeg',  'Bilder/WW2Sad/d18.jpeg',  'Bilder/WW2Sad/d19.jpeg',  'Bilder/WW2Sad/d20.jpeg', 
+        ],
+    };
+    
+    
+    const qrCodes = {
+    'WW1_Dark': ['Bilder/QR/WW1_Dark.png', 'Bilder/QR/WW1_Dark2.png' ],
+    'WW1_Funny': 'Bilder/QR/WW1_Funny.png',
+    'WW1_Epic': 'Bilder/QR/WW1_Epic.png',
+    'WW1_Sad': 'Bilder/QR/WW1_Sad.png',
+
+    'WW2_Dark': 'Bilder/QR/WW2_Dark.png',
+    'WW2_Funny': 'Bilder/QR/WW2_Funny.png',
+    'WW2_Epic': ['Bilder/QR/WW2_Epic.png', 'Bilder/QR/WW2_Epic2.png' ],
+    'WW2_Sad': 'Bilder/QR/WW2_Sad.png',
+
+    'Funny History_Dark': 'Bilder/QR/FH_Dark.png',
+    'Funny History_Funny': 'Bilder/QR/FH_Funny.png',
+    'Funny History_Epic': 'Bilder/QR/FH_Epic.png',
+    'Funny History_Sad': 'Bilder/QR/FH_Sad.png',
+
+    'Crazy History_Dark': 'Bilder/QR/CH_Dark.png',
+    'Crazy History_Funny': 'Bilder/QR/CH_Funny.png',
+    'Crazy History_Epic': 'Bilder/QR/CH_Epic.png',
+    'Crazy History_Sad': 'Bilder/QR/CH_Sad.png',
+};
+
+
+
+
+
+// Perlin Noise-Funktion
+function generateNoise(width, height) {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+
+    // Rauschwerte generieren
+    const imageData = ctx.createImageData(width, height);
+    const data = imageData.data;
+
+    let noise = [];
+    for (let x = 0; x < width; x++) {
+        noise[x] = [];
+        for (let y = 0; y < height; y++) {
+            // Perlin Noise generieren
+            noise[x][y] = Math.random() * 255;
+        }
+    }
+
+    // Pixel für den Nebel setzen
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
+            const value = noise[x][y] * 0.1; // Intensität des Nebels
+            const cell = (x + y * width) * 4;
+            data[cell] = value; // R
+            data[cell + 1] = value; // G
+            data[cell + 2] = value; // B
+            data[cell + 3] = value < 50 ? 0 : 255; // Alpha für Durchsichtigkeit
+        }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+    return canvas;
+}
+
+// Nebel-Canvas erstellen
+const canvas = document.getElementById('fogCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Nebelanimation
+function animateFog() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const noiseCanvas = generateNoise(canvas.width, canvas.height);
+    ctx.drawImage(noiseCanvas, 0, 0);
+    ctx.globalAlpha = 0.5; // Transparenz des Nebels
+    ctx.drawImage(noiseCanvas, -10, 0); // Nebelbewegung
+    ctx.drawImage(noiseCanvas, -20, 0); // Nebelbewegung
+    requestAnimationFrame(animateFog);
+}
+
+animateFog();
+
+
+
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+      const container = document.querySelector('.sparkles-container');
+      
+      function createSpark() {
+        const spark = document.createElement('div');
+        spark.classList.add('spark');
+        
+        // Zufällige Startposition und chaotische Bewegung
+        const startX = Math.random() * window.innerWidth;
+        const startY = Math.random() * window.innerHeight;
+        const randomX = (Math.random() - 0.5) * 1000; // Stärkere horizontale Streuung
+        const randomY = (Math.random() - 0.5) * 1000; // Stärkere vertikale Streuung
+
+        // Setze die Position und Bewegungsrichtung
+        spark.style.left = `${startX}px`;
+        spark.style.top = `${startY}px`;
+        spark.style.setProperty('--random-x', `${randomX}px`);
+        spark.style.setProperty('--random-y', `${randomY}px`);
+
+        // Zufällige Größe und intensivere Opazität
+        spark.style.width = `${Math.random() * 30 + 5}px`; // Größere Funken
+        spark.style.height = spark.style.width; // Quadrat
+        spark.style.opacity = Math.random() * 0.8 + 0.2; // Variierende Opazität
+
+        container.appendChild(spark);
+
+        // Entferne Funken nach 3 Sekunden
+        setTimeout(() => {
+          spark.remove();
+        }, 3000);  // Funken verschwinden nach 3 Sekunden
+      }
+
+      // Erstelle Funken alle 50ms für ein intensives Erlebnis
+      setInterval(createSpark, 50);
+    });
+function selectOption(option) {
+    // Set the first selection to the passed option
+    firstSelection = option;
+
+    // Get references to the DOM elements for menu1, loadingScreen1, and menu2
+    const menu1 = document.getElementById('menu1');
+    const loadingScreen1 = document.getElementById('loadingScreen1');
+    const menu2 = document.getElementById('menu2');
+
+    // Fade out menu1 by setting its opacity to 0
+    menu1.style.opacity = '0';
+
+    // After a short delay, hide menu1 and show the loading screen
+    setTimeout(() => {
+        // Hide menu1 by setting its display to 'none'
+        menu1.style.display = 'none';
+
+        // Show loadingScreen1 by setting its display to 'flex'
+        loadingScreen1.style.display = 'flex';
+
+        // Shuffle the images associated with the selected option
+        const randomImages = shuffleArray(slideshowImages[firstSelection]);
+
+        // Start the slideshow with the shuffled images
+        startSlideshow(randomImages);
+
+        // Animate the loading bar over 3000ms, then show menu2
+        animateLoadingBar('loadingBar1', 'loadingText1', 3000, () => {
+            // Hide the loading screen once the loading bar animation completes
+            loadingScreen1.style.display = 'none';
+
+            // Show menu2 by setting its display to 'flex' and fade it in by setting opacity to 1
+            menu2.style.display = 'flex';
+            menu2.style.opacity = '1';
+        });
+    }, 10); // Delay before executing the above actions
+}
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.querySelector('.sparkles-container');
+  
+  function createSpark() {
+    const spark = document.createElement('div');
+    spark.classList.add('spark');
+    container.appendChild(spark);
+    
+    // Zufällige Startposition
+    spark.style.left = `${Math.random() * window.innerWidth}px`;
+    spark.style.top = `${Math.random() * window.innerHeight}px`;
+    
+    // Nach einer Weile entfernen
+    setTimeout(() => {
+      spark.remove();
+    }, 3000);  // Die Funken verschwinden nach 3 Sekunden
+  }
+  
+  // Erstelle Funken alle 200ms
+  setInterval(createSpark, 200);
+});
+
+
+/**
+ * Function to show the QR code for the selected combination of first and second options
+ * @param {string} option the second option selected by the user
+ */
+function showQRCode(option) {
+      // Store the second option in a variable
+      secondSelection = option;
+
+      // Construct the key for the combination of first and second options
+      const combinationKey = `${firstSelection}_${secondSelection}`;
+
+      // Get the images associated with the combination
+      const selectedImages = slideshowImagesCombinations[combinationKey];
+
+      // If no images are found, show an error message
+      if (!selectedImages || selectedImages.length === 0) {
+        console.error('Keine Bilder für die Kombination gefunden:', combinationKey);
+        alert('Für diese Kombination wurden keine Bilder gefunden.');
+        return;
+      }
+
+      // Shuffle the images
+      const randomImages = shuffleArray(selectedImages);
+
+      // Hide the menu and show the loading screen
+      document.getElementById('menu2').style.display = 'none';
+      document.getElementById('loadingScreen2').style.display = 'flex';
+
+      // Start the slideshow with the shuffled images
+      startSlideshow(randomImages, 'slideshow2');
+
+      // Animate the loading bar for 10 seconds, then show the QR code
+      animateLoadingBar('loadingBar2', 'loadingText2', 10000, () => {
+        // Hide the loading screen
+        document.getElementById('loadingScreen2').style.display = 'none';
+
+        // Show the QR code screen
+        document.getElementById('qrScreen').style.display = 'flex';
+
+        // Get the QR code for the selected combination
+        const qrKey = `${firstSelection}_${secondSelection}`;
+        const qrCodeSrc = qrCodes[qrKey];
+
+        // If a QR code is found, display it
+        if (qrCodeSrc) {
+          const qrCodeImage = document.getElementById('qrImage');
+          qrCodeImage.src = qrCodeSrc;
+        } else {
+          // Otherwise, show an error message
+          alert('Kein QR-Code für diese Auswahl vorhanden.');
+        }
+      });
+    }
+
+
+function shuffleArray(array) {
+    let m = array.length, t, i;
+    while (m) {
+        i = Math.floor(Math.random() * m--);
+        t = array[m];
+        array[m] = array[i];
+        array[i] = t;
+    }
+    return array;
+}
+
+setTimeout(() => {
+    document.getElementById('welcomeScreen').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('welcomeScreen').style.display = 'none';
+        document.getElementById('menu1').style.display = 'flex';
+        document.getElementById('menu1').style.opacity = '1';
+    }, 1000);
+}, 5000);
+
+function selectOption(option) {
+    firstSelection = option;
+    document.getElementById('menu1').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('menu1').style.display = 'none';
+        document.getElementById('loadingScreen1').style.display = 'flex';
+        const randomImages = shuffleArray(slideshowImages[firstSelection]);
+        startSlideshow(randomImages);
+
+        animateLoadingBar('loadingBar1', 'loadingText1', 10000, () => {
+            document.getElementById('loadingScreen1').style.display = 'none';
+            document.getElementById('menu2').style.display = 'flex';
+            document.getElementById('menu2').style.opacity = '1';
+        });
+    }, 10);
+}
+
+function startSlideshow(images, slideshowId = 'slideshow') {
+    clearInterval(slideshowInterval); 
+    currentImageIndex = 0;
+    const slideshowContainer = document.getElementById(slideshowId);
+    slideshowContainer.innerHTML = '';
+    if (!images || images.length === 0) {
+        console.error('Keine Bilder für die Diashow vorhanden.');
+        return;
+    }
+    images.forEach((imageSrc) => {
+        const img = document.createElement('img');
+        img.src = imageSrc;
+        img.style.opacity = '0.7'; 
+        img.style.position = 'absolute';
+        img.style.transition = 'opacity 5s'; 
+        slideshowContainer.appendChild(img);
+    });
+    slideshowInterval = setInterval(() => {
+        const children = slideshowContainer.children;
+
+        if (children.length === 0) return;
+        Array.from(children).forEach(img => img.style.opacity = '0');
+        children[currentImageIndex].style.opacity = '1';
+        currentImageIndex = (currentImageIndex + 1) % images.length;
+    }, 1050);
+}
+
+function animateLoadingBar(barId, textId, duration, callback) {
+    const loadingBar = document.getElementById(barId);
+    const loadingText = document.getElementById(textId);
+    let width = 0;
+    const interval = setInterval(() => {
+        width += 1;
+        loadingBar.style.width = width + '%';
+        loadingText.innerText = `Loading... ${width}%`;
+        if (width >= 100) {
+            clearInterval(interval);
+            callback();
+        }
+    }, duration / 100);
+}
+
+
+    // Function to display the appropriate QR code based on the selected type and mood
+function displayQRCode(type, mood) {
+  // Get the HTML element where the QR code image will be displayed
+  const qrImage = document.getElementById('qrScreen');
+  
+  // Construct the key using the type and mood to access the correct QR code path from the qrCodes object
+  const qrPath = qrCodes[`${type}_${mood}`] || '';
+  
+  // Set the src attribute of the QR image element to the path of the QR code
+  // If the path is not found, it defaults to an empty string
+  qrImage.src = qrPath;
+  
+  // Set the alt attribute of the QR image element
+  // If the QR path is not available, display an alt text indicating the QR code is unavailable
+  qrImage.alt = qrPath ? '' : 'QR Code nicht verfügbar';
+}
+
+    // Event-Handler für Button 1 und Button 2
+    document.getElementById('firstselection').addEventListener('click', function() {
+      const type = this.getAttribute('data-type');
+      const mood = this.getAttribute('data-mood');
+      displayQRCode(type, mood);
+    });
+
+    document.getElementById('button2').addEventListener('click', function() {
+      const type = this.getAttribute('data-type');
+      const mood = this.getAttribute('data-mood');
+      displayQRCode(type, mood);
+    });
+
+
+function restart() {
+    clearInterval(slideshowInterval);
+    currentImageIndex = 0;
+    firstSelection = '';
+    secondSelection = '';
+    document.getElementById('qrScreen').style.display = 'none';
+    document.getElementById('welcomeScreen').style.display = 'flex';
+    document.getElementById('welcomeScreen').style.opacity = '1';
+    setTimeout(() => {
+        document.getElementById('welcomeScreen').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            document.getElementById('menu1').style.display = 'flex';
+            document.getElementById('menu1').style.opacity = '1';
+        }, 1000);
+    }, 5000);
+}
+
+</script>
+</body>
+</html>
