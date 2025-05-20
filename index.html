@@ -18,6 +18,8 @@
       align-items: center;
       height: 100vh;
       overflow: hidden; /* Verhindert Scrollen */
+        overscroll-behavior: none; /* bessere Kontrolle beim Scrollen */
+  touch-action: manipulation;
     }
 
     /* Willkommen-Bildschirm */
@@ -52,17 +54,26 @@
       transition: opacity 1s ease;
     }
 
-    .button {
-      width: 45%;
-      padding: 20px;
-      background-color: rgb(56, 56, 56);
-      color: rgb(255, 255, 255);
-      font-size: 1.5em;
-      text-align: center;
-      cursor: pointer;
-      border-radius: 8px;
-      z-index: 20;
-    }
+.button {
+  flex: 1 1 40%; /* dynamisch flexibel */
+  min-width: 130px;
+  max-width: 200px;
+}
+#welcomeScreen, #menu1, #menu2, #qrScreen {
+  overflow-y: auto;
+}
+#welcomeScreen h1 {
+  font-size: clamp(1.8em, 6vw, 3em);
+}
+#qrImage {
+  width: min(80%, 200px);
+}
+.button {
+  padding: 1.2em;
+  font-size: 1.2em;
+  min-height: 48px; /* besser für Finger */
+}
+
 
     /* Ladebildschirm */
     .loadingContainer {
