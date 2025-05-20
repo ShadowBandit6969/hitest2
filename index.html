@@ -55,19 +55,46 @@
       transition: opacity 1s ease;
     }
 
-    .button {
-      flex: 1 1 40%;
-      min-width: 130px;
-      max-width: 200px;
-      padding: 1.2em;
-      font-size: 1.2em;
-      min-height: 48px;
-      background-color: #383838;
-      color: white;
-      text-align: center;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+.button {
+  flex: 1 1 40%;
+  min-width: 140px;
+  max-width: 240px;
+  padding: 14px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color: white;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    0 4px 6px rgba(0, 0, 0, 0.15);
+  backdrop-filter: saturate(180%) blur(10px);
+  -webkit-backdrop-filter: saturate(180%) blur(10px);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.button:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 6px 12px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
+}
+
+.button:active {
+  transform: scale(0.98);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.25),
+    0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
 
     /* Ladebalken */
     .loadingContainer {
@@ -198,27 +225,26 @@
   <!-- Welcome -->
   <div id="welcomeScreen"><h1>AI Monetization</h1></div>
 
-  <!-- Menü 1 -->
-  <div id="menu1" style="display: none;">
+   <div id="menu1" style="display: none;">
     <div class="button" onclick="selectOption('WW2')">WW2</div>
     <div class="button" onclick="selectOption('WW1')">WW1</div>
     <div class="button" onclick="selectOption('Funny History')">Funny History</div>
     <div class="button" onclick="selectOption('Crazy History')">Crazy History</div>
+    <div class="fog-container">
+      <canvas id="fogCanvas"></canvas>
   </div>
-
-  <!-- Ladebildschirm 1 -->
+  </div>
   <div id="loadingScreen1" style="display: none;">
     <div class="loadingContainer">
-      <div class="loadingBarWrapper">
-        <div class="loadingBarContainer">
-          <div class="loadingBar" id="loadingBar1"></div>
-        </div>
-        <div class="loadingText" id="loadingText1">Loading... 0%</div>
+      <div class ="loadingBarWrapper">
+      <div class="loadingBarContainer">
+        <div class="loadingBar" id="loadingBar1"></div>
       </div>
-    </div>
+      <div class="loadingText" id="loadingText1">Loading... 0%</div>
+    </div></div>
     <div id="slideshow"></div>
   </div>
-
+  
   <!-- Menü 2 -->
   <div id="menu2" style="display: none;">
     <div class="button" onclick="showQRCode('Dark')">Dark</div>
