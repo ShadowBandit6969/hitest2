@@ -4,10 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interaktive Ausstellung</title>
-  
+
   <style>
-    /* Grundlayout */
-    body, html {
+    html, body {
       margin: 0;
       padding: 0;
       background-color: black;
@@ -16,13 +15,14 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      overflow: hidden; /* Verhindert Scrollen */
-        overscroll-behavior: none; /* bessere Kontrolle beim Scrollen */
-  touch-action: manipulation;
+      min-height: 100vh;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: none;
+      touch-action: manipulation;
     }
 
-    /* Willkommen-Bildschirm */
+    /* Bildschirme */
     #welcomeScreen, #loadingScreen1, #loadingScreen2, #qrScreen {
       position: absolute;
       top: 0;
@@ -34,14 +34,15 @@
       align-items: center;
       background-color: black;
       transition: opacity 1s ease;
+      overflow-y: auto;
     }
 
     #welcomeScreen h1 {
-      font-size: 3em;
+      font-size: clamp(1.8em, 6vw, 3em);
       font-weight: bold;
     }
 
-    /* Button-Menüs */
+    /* Menü & Buttons */
     #menu1, #menu2 {
       display: flex;
       flex-wrap: wrap;
@@ -54,64 +55,55 @@
       transition: opacity 1s ease;
     }
 
-.button {
-  flex: 1 1 40%; /* dynamisch flexibel */
-  min-width: 130px;
-  max-width: 200px;
-}
-#welcomeScreen, #menu1, #menu2, #qrScreen {
-  overflow-y: auto;
-}
-#welcomeScreen h1 {
-  font-size: clamp(1.8em, 6vw, 3em);
-}
-#qrImage {
-  width: min(80%, 200px);
-}
-.button {
-  padding: 1.2em;
-  font-size: 1.2em;
-  min-height: 48px; /* besser für Finger */
-}
+    .button {
+      flex: 1 1 40%;
+      min-width: 130px;
+      max-width: 200px;
+      padding: 1.2em;
+      font-size: 1.2em;
+      min-height: 48px;
+      background-color: #383838;
+      color: white;
+      text-align: center;
+      border-radius: 8px;
+      cursor: pointer;
+    }
 
-
-    /* Ladebildschirm */
+    /* Ladebalken */
     .loadingContainer {
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
-/* CSS-Anpassungen */
+    .loadingBarWrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-.loadingBarWrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+    .loadingBarContainer {
+      width: 150px;
+      height: 10px;
+      background-color: white;
+      border-radius: 5px;
+      overflow: hidden;
+    }
 
-.loadingBarContainer {
-  width: 150px; /* Kürzere Ladeleiste */
-  background-color: white;
-  height: 10px;
-  border-radius: 5px;
-  overflow: hidden;
-}
+    .loadingBar {
+      width: 0;
+      height: 100%;
+      background-color: black;
+    }
 
-.loadingBar {
-  width: 0;
-  height: 100%;
-  background-color: black;
-}
+    .loadingText {
+      font-size: 1.2em;
+      text-align: center;
+      margin-bottom: 5px;
+    }
 
-.loadingText {
-  font-size: 1.2em;
-  text-align: center;
-  margin-bottom: 5px; /* Abstand zwischen Text und Ladeleiste */
-}
-
-    /* Diashow-Bereich */
-    #slideshow {
+    /* Diashows */
+    #slideshow, #slideshow2 {
       position: absolute;
       top: 0;
       left: 0;
@@ -123,222 +115,123 @@
       overflow: hidden;
     }
 
-    #slideshow img {
-      width: 100%; /* Breite 100% */
-      height: 100%; /* Höhe 100% */
-      object-fit: cover; /* Dehnt das Bild, um den Container zu füllen */
-      opacity: 1; /* Setzt die Transparenz auf 10% */
-      position: absolute; /* Absolute Positionierung */
-      transition: opacity 0.01s ease; /* Sanfter Übergang zwischen den Bildern */
+    #slideshow img, #slideshow2 img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      opacity: 1;
+      transition: opacity 0.5s ease;
     }
 
-    #slideshow2 {
+    /* QR Bereich */
+    #qrScreen {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #qrImage {
+      width: min(80%, 200px);
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    #restartButton {
+      padding: 15px 30px;
+      background-color: #fff;
+      color: #000;
+      font-size: 1.2em;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+
+    #restartButton:hover {
+      background-color: #e0e0e0;
+    }
+
+    /* Funken & Nebel */
+    .sparkles-container, .fog-container {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .spark {
+      position: absolute;
+      border-radius: 50%;
+      background-color: #ff4500;
+      opacity: 0;
+      box-shadow: 0 0 10px rgba(255, 69, 0, 0.8), 0 0 20px rgba(255, 69, 0, 0.6);
+      animation: fly 2s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards, fade 2s forwards;
+    }
+
+    .spark:nth-child(odd) { background-color: #b22222; }
+    .spark:nth-child(even) { background-color: #d2691e; }
+
+    @keyframes fly {
+      0% { transform: translate(0, 0) scale(1); opacity: 1; }
+      25%,50% { transform: translateX(var(--random-x)) translateY(var(--random-y)); opacity: 0.8; }
+      100% { transform: scale(0); opacity: 0; }
+    }
+
+    @keyframes fade {
+      0% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    #fogCanvas {
+      width: 100%;
+      height: 100%;
       position: absolute;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-  }
-
-  /* Anpassungen für Bilder in der zweiten Diashow */
-  #slideshow2 img {
-    width: 100%; /* Breite 100% */
-      height: 100%; /* Höhe 100% */
-      object-fit: cover; /* Dehnt das Bild, um den Container zu füllen */
-      opacity: 1; /* Setzt die Transparenz auf 10% */
-      position: absolute; /* Absolute Positionierung */
-      transition: opacity 0.1s ease; /* Sanfter Übergang zwischen den Bildern */
-  }
-
-  #qrScreen {
-  display: flex; /* Ändere zu flex, um Zentrierung zu gewährleisten */
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%; /* Stellt sicher, dass es die volle Höhe des Containers einnimmt */
-}
-
-#qrImage {
-  width: 200px; /* Feste Breite für den QR-Code */
-  height: auto; /* Proportionen des QR-Codes beibehalten */
-  margin-bottom: 20px;
-}
-
-#restartButton {
-  width: auto; /* Passt die Breite an den Text an */
-  padding: 15px 30px; /* Mehr Polsterung für eine einfachere Bedienung */
-  background-color: #ffffff; /* Weißer Hintergrund für besseren Kontrast */
-  color: #000000; /* Schwarzer Text */
-  font-size: 1.2em;
-  border-radius: 8px;
-  border: none; /* Entfernt optional die Umrandung */
-  transition: background-color 0.3s ease;
-}
-
-#restartButton:hover {
-  background-color: #e0e0e0; /* Hellerer Hover-Effekt */
-}
-
-
-
-
-
-
-/* Container für die Funken */
-.sparkles-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none; /* Damit die Funken keine Interaktion blockieren */
-  z-index: 0; /* Funken hinter den Buttons */
-}
-
-/* Die Funken selbst */
-.spark {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background-color: #ff4500; /* Feuriges Rot */
-  opacity: 0;
-  box-shadow: 0 0 10px rgba(255, 69, 0, 0.8), 0 0 20px rgba(255, 69, 0, 0.6);
-  animation: fly 2s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards, fade 2s forwards;
-}
-
-
-
-/* Funken fliegen mit Animation */
-@keyframes fly {
-  0% {
-    transform: translate(0, 0) scale(1);
-    opacity: 1;
-  }
-  25% {
-    transform: translateX(var(--random-x)) translateY(var(--random-y)) scale(1.5);
-    opacity: 1;
-  }
-  50% {
-    transform: translateX(var(--random-x)) translateY(var(--random-y)) scale(1.2);
-    opacity: 0.8;
-  }
-  75% {
-    transform: translateX(var(--random-x)) translateY(var(--random-y)) scale(0.8);
-    opacity: 0.6;
-  }
-  100% {
-    transform: translateX(var(--random-x)) translateY(var(--random-y)) scale(0);
-    opacity: 0;
-  }
-}
-
-@keyframes fade {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
-}
-
-/* Funkenfarben variieren */
-.spark:nth-child(odd) {
-  background-color: #b22222; /* Dunkelrot */
-}
-
-.spark:nth-child(even) {
-  background-color: #d2691e; /* Ziegelrot */
-}
-
-
-
-
-
-/* Nebel-Container */
-.fog-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100vh; /* Der Nebel füllt nun den gesamten Bildschirm */
-  pointer-events: none;
-  z-index: 0; /* Nebel hinter den Funken und Buttons */
-  overflow: hidden;
-}
-
-/* Canvas Stil */
-#fogCanvas {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 0; /* Hinter den anderen Elementen */
-}
-
-
-
-
-
-
-/* Mobile Optimierung für die Überschrift */
-@media (max-width: 600px) {
-  #welcomeScreen h1 {
-    font-size: 2em;
-  }
-}
-
-@media (max-width: 400px) {
-  #welcomeScreen h1 {
-    font-size: 1.6em;
-  }
-}
-
+    }
   </style>
 </head>
 <body>
 
+  <!-- Welcome -->
+  <div id="welcomeScreen"><h1>AI Monetization</h1></div>
 
-  <div id="welcomeScreen">
-
-    <h1>AI Monetization</h1>
-  </div>
-
+  <!-- Menü 1 -->
   <div id="menu1" style="display: none;">
     <div class="button" onclick="selectOption('WW2')">WW2</div>
     <div class="button" onclick="selectOption('WW1')">WW1</div>
     <div class="button" onclick="selectOption('Funny History')">Funny History</div>
     <div class="button" onclick="selectOption('Crazy History')">Crazy History</div>
     <div class="sparkles-container"></div>
-    <div class="fog-container">
-      <canvas id="fogCanvas"></canvas>
+    <div class="fog-container"><canvas id="fogCanvas"></canvas></div>
   </div>
-  </div>
+
+  <!-- Ladebildschirm 1 -->
   <div id="loadingScreen1" style="display: none;">
     <div class="loadingContainer">
-      <div class ="loadingBarWrapper">
-      <div class="loadingBarContainer">
-        <div class="loadingBar" id="loadingBar1"></div>
+      <div class="loadingBarWrapper">
+        <div class="loadingBarContainer">
+          <div class="loadingBar" id="loadingBar1"></div>
+        </div>
+        <div class="loadingText" id="loadingText1">Loading... 0%</div>
       </div>
-      <div class="loadingText" id="loadingText1">Loading... 0%</div>
-    </div></div>
+    </div>
     <div id="slideshow"></div>
   </div>
-  
+
+  <!-- Menü 2 -->
   <div id="menu2" style="display: none;">
     <div class="button" onclick="showQRCode('Dark')">Dark</div>
     <div class="button" onclick="showQRCode('Funny')">Funny</div>
     <div class="button" onclick="showQRCode('Epic')">Epic</div>
     <div class="button" onclick="showQRCode('Sad')">Sad</div>
     <div class="sparkles-container"></div>
-    <div class="fog-container"></div> <!-- Nebel kommt nach den Funken -->
+    <div class="fog-container"></div>
   </div>
 
+  <!-- Ladebildschirm 2 -->
   <div id="loadingScreen2" style="display: none;">
     <div class="loadingContainer">
       <div class="loadingBarContainer">
@@ -349,16 +242,11 @@
     <div id="slideshow2"></div>
   </div>
 
-  <div id="qrContainer">
-    <div class="sparkles-container"></div>
+  <!-- QR Code -->
   <div id="qrScreen" style="display: none;">
-
-      <img id="qrImage" src="" alt="QR Code">
-      <div id="restartButton" onclick="restart()">Start again</div>
-
+    <img id="qrImage" src="" alt="QR Code">
+    <div id="restartButton" onclick="restart()">Start again</div>
   </div>
-</div>
-
   <script>
     let firstSelection = '';
     let secondSelection = '';
