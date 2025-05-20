@@ -342,37 +342,36 @@
     let currentImageIndex = 0;
 
     const slideshowImages = {
-        'WW1': ['Bilder/WW1/1.jpeg', 'Bilder/WW1/2.jpeg', 'Bilder/WW1/3.jpeg','Bilder/WW1/4.jpeg','Bilder/WW1/5.jpeg','Bilder/WW1/6.jpeg',
-          'Bilder/WW1/12.jpeg','Bilder/WW1/11.jpeg','Bilder/WW1/10.jpeg','Bilder/WW1/9.jpeg','Bilder/WW1/8.jpeg','Bilder/WW1/7.jpeg',
-          'Bilder/WW1/13.jpeg','Bilder/WW1/14.jpeg', 'Bilder/WW1/15.jpeg','Bilder/WW1/16.jpeg','Bilder/WW1/17.jpeg','Bilder/WW1/18.jpeg',
-          'Bilder/WW1/19.jpeg','Bilder/WW1/20.jpeg', 'Bilder/WW1/21.jpeg','Bilder/WW1/22.jpeg', 'Bilder/WW1/23.jpeg','Bilder/WW1/24.jpeg', 'Bilder/WW1/25.jpeg',
-        'Bilder/WW1/26.jpeg','Bilder/WW1/27.jpeg','Bilder/WW1/28.jpeg','Bilder/WW1/29.jpeg','Bilder/WW1/30.jpeg','Bilder/WW1/31.jpeg','Bilder/WW1/32.jpeg',
-      'Bilder/WW1/33.jpeg','Bilder/WW1/34.jpeg','Bilder/WW1/35.jpeg','Bilder/WW1/36.jpeg','Bilder/WW1/37.jpeg','Bilder/WW1/38.jpeg','Bilder/WW1/39.jpeg','Bilder/WW1/40.jpeg',
-    'Bilder/WW1/41.jpeg','Bilder/WW1/42.jpeg','Bilder/WW1/42.jpeg','Bilder/WW1/44.jpeg','Bilder/WW1/45.jpeg','Bilder/WW1/46.jpeg','Bilder/WW1/47.jpeg',
-  'Bilder/WW1/48.jpeg','Bilder/WW1/49.jpeg','Bilder/WW1/50.jpeg','Bilder/WW1/51.jpeg','Bilder/WW1/52.jpeg','Bilder/WW1/53.jpeg','Bilder/WW1/54.jpeg','Bilder/WW1/55.jpeg',
-'Bilder/WW1/56.jpeg','Bilder/WW1/57.jpeg','Bilder/WW1/58.jpeg','Bilder/WW1/59.jpeg','Bilder/WW1/60.jpeg','Bilder/WW1/61.jpeg',],
+    'WW1': ['1.jpeg', '2.jpeg', '3.jpeg','4.jpeg','5.jpeg','6.jpeg',
+      '12.jpeg','11.jpeg','10.jpeg','9.jpeg','8.jpeg','7.jpeg',
+      '13.jpeg','14.jpeg','15.jpeg','16.jpeg','17.jpeg','18.jpeg',
+      '19.jpeg','20.jpeg','21.jpeg','22.jpeg','23.jpeg','24.jpeg','25.jpeg',
+      '26.jpeg','27.jpeg','28.jpeg','29.jpeg','30.jpeg','31.jpeg','32.jpeg',
+      '33.jpeg','34.jpeg','35.jpeg','36.jpeg','37.jpeg','38.jpeg','39.jpeg','40.jpeg',
+      '41.jpeg','42.jpeg','42.jpeg','44.jpeg','45.jpeg','46.jpeg','47.jpeg',
+      '48.jpeg','49.jpeg','50.jpeg','51.jpeg','52.jpeg','53.jpeg','54.jpeg','55.jpeg',
+      '56.jpeg','57.jpeg','58.jpeg','59.jpeg','60.jpeg','61.jpeg'],
 
-        'WW2': ['Bilder/WW2/ww2_1.jpeg', 'Bilder/WW2/ww2_2.jpeg', 'Bilder/WW2/ww2_3.jpeg', 'Bilder/WW2/ww2_4.jpeg', 'Bilder/WW2/ww2_5.jpeg', 'Bilder/WW2/ww2_6.jpeg', 'Bilder/WW2/ww2_7.jpeg','Bilder/WW2/ww2_8.jpeg', 
-        'Bilder/WW2/ww2_9.jpeg','Bilder/WW2/ww2_10.jpeg','Bilder/WW2/ww2_11.jpeg','Bilder/WW2/ww2_12.jpeg','Bilder/WW2/ww2_13.jpeg','Bilder/WW2/ww2_14.jpeg','Bilder/WW2/ww2_15.jpeg','Bilder/WW2/ww2_16.jpeg','Bilder/WW2/ww2_17.jpeg',
-        'Bilder/WW2/ww2_18.jpeg','Bilder/WW2/ww2_19.jpeg','Bilder/WW2/ww2_20.jpeg','Bilder/WW2/ww2_21.jpeg','Bilder/WW2/ww2_22.jpeg','Bilder/WW2/ww2_23.jpeg','Bilder/WW2/ww2_24.jpeg','Bilder/WW2/ww2_25.jpeg','Bilder/WW2/ww2_26.jpeg',
-      'Bilder/WW2/ww2_27.jpeg','Bilder/WW2/ww2_28.jpeg','Bilder/WW2/ww2_29.jpeg','Bilder/WW2/ww2_30.jpeg','Bilder/WW2/ww2_31.jpeg','Bilder/WW2/ww2_32.jpeg','Bilder/WW2/ww2_33.jpeg','Bilder/WW2/ww2_34.jpeg',
-    'Bilder/WW2/ww2_35.jpeg','Bilder/WW2/ww2_36.jpeg','Bilder/WW2/ww2_37.jpeg','Bilder/WW2/ww2_38.jpeg','Bilder/WW2/ww2_39.jpeg','Bilder/WW2/ww2_40.jpeg','Bilder/WW2/ww2_41.jpeg','Bilder/WW2/ww2_42.jpeg','Bilder/WW2/ww2_43.jpeg',
-  'Bilder/WW2/ww2_44.jpeg','Bilder/WW2/ww2_45.jpeg','Bilder/WW2/ww2_46.jpeg','Bilder/WW2/ww2_47.jpeg','Bilder/WW2/ww2_48.jpeg','Bilder/WW2/ww2_49.jpeg','Bilder/WW2/ww2_50.jpeg','Bilder/WW2/ww2_51.jpeg','Bilder/WW2/ww2_52.jpeg','Bilder/WW2/ww2_53.jpeg',
-'Bilder/WW2/ww2_54.jpeg','Bilder/WW2/ww2_56.jpeg','Bilder/WW2/ww2_57.jpeg','Bilder/WW2/ww2_58.jpeg','Bilder/WW2/ww2_59.jpeg','Bilder/WW2/ww2_60.jpeg','Bilder/WW2/ww2_61.jpeg',],
+    'WW2': ['ww2_1.jpeg', 'ww2_2.jpeg', 'ww2_3.jpeg', 'ww2_4.jpeg', 'ww2_5.jpeg', 'ww2_6.jpeg', 'ww2_7.jpeg','ww2_8.jpeg', 
+    'ww2_9.jpeg','ww2_10.jpeg','ww2_11.jpeg','ww2_12.jpeg','ww2_13.jpeg','ww2_14.jpeg','ww2_15.jpeg','ww2_16.jpeg','ww2_17.jpeg',
+    'ww2_18.jpeg','ww2_19.jpeg','ww2_20.jpeg','ww2_21.jpeg','ww2_22.jpeg','ww2_23.jpeg','ww2_24.jpeg','ww2_25.jpeg','ww2_26.jpeg',
+    'ww2_27.jpeg','ww2_28.jpeg','ww2_29.jpeg','ww2_30.jpeg','ww2_31.jpeg','ww2_32.jpeg','ww2_33.jpeg','ww2_34.jpeg',
+    'ww2_35.jpeg','ww2_36.jpeg','ww2_37.jpeg','ww2_38.jpeg','ww2_39.jpeg','ww2_40.jpeg','ww2_41.jpeg','ww2_42.jpeg','ww2_43.jpeg',
+    'ww2_44.jpeg','ww2_45.jpeg','ww2_46.jpeg','ww2_47.jpeg','ww2_48.jpeg','ww2_49.jpeg','ww2_50.jpeg','ww2_51.jpeg','ww2_52.jpeg','ww2_53.jpeg',
+    'ww2_54.jpeg','ww2_56.jpeg','ww2_57.jpeg','ww2_58.jpeg','ww2_59.jpeg','ww2_60.jpeg','ww2_61.jpeg'],
 
-        'Funny History': ['Bilder/FunnyHistory/1.jpeg', 'Bilder/FunnyHistory/2.jpeg', 'Bilder/FunnyHistory/3.jpeg','Bilder/FunnyHistory/4.jpeg','Bilder/FunnyHistory/5.jpeg',
-          'Bilder/FunnyHistory/6.jpeg','Bilder/FunnyHistory/7.jpeg','Bilder/FunnyHistory/8.jpeg','Bilder/FunnyHistory/9.jpeg','Bilder/FunnyHistory/10.jpeg','Bilder/FunnyHistory/11.jpeg',
-           'Bilder/FunnyHistory/12.jpeg','Bilder/FunnyHistory/13.jpeg','Bilder/FunnyHistory/14.jpeg','Bilder/FunnyHistory/15.jpeg','Bilder/FunnyHistory/16.jpeg','Bilder/FunnyHistory/17.jpeg',
-            'Bilder/FunnyHistory/18.jpeg','Bilder/FunnyHistory/19.jpeg','Bilder/FunnyHistory/20.jpeg','Bilder/FunnyHistory/21.jpeg','Bilder/FunnyHistory/22.jpeg','Bilder/FunnyHistory/23.jpeg',
-            'Bilder/FunnyHistory/24.jpeg','Bilder/FunnyHistory/25.jpeg',],
+    'Funny History': ['1.jpeg', '2.jpeg', '3.jpeg','4.jpeg','5.jpeg',
+      '6.jpeg','7.jpeg','8.jpeg','9.jpeg','10.jpeg','11.jpeg',
+       '12.jpeg','13.jpeg','14.jpeg','15.jpeg','16.jpeg','17.jpeg',
+        '18.jpeg','19.jpeg','20.jpeg','21.jpeg','22.jpeg','23.jpeg',
+        '24.jpeg','25.jpeg'],
 
-        'Crazy History': ['Bilder/CrazyHistory/1.jpeg', 'Bilder/CrazyHistory/2.jpeg','Bilder/CrazyHistory/3.jpeg','Bilder/CrazyHistory/4.jpeg',
-          'Bilder/CrazyHistory/19.jpeg','Bilder/CrazyHistory/18.jpeg','Bilder/CrazyHistory/11.jpeg','Bilder/CrazyHistory/10.jpeg','Bilder/CrazyHistory/5.jpeg',
-          'Bilder/CrazyHistory/20.jpeg','Bilder/CrazyHistory/17.jpeg','Bilder/CrazyHistory/12.jpeg','Bilder/CrazyHistory/9.jpeg','Bilder/CrazyHistory/6.jpeg',
-          'Bilder/CrazyHistory/21.jpeg','Bilder/CrazyHistory/16.jpeg','Bilder/CrazyHistory/13.jpeg','Bilder/CrazyHistory/8.jpeg','Bilder/CrazyHistory/7.jpeg',
-          'Bilder/CrazyHistory/22.jpeg','Bilder/CrazyHistory/15.jpeg','Bilder/CrazyHistory/14.jpeg','Bilder/CrazyHistory/23.jpeg', 'Bilder/CrazyHistory/24.jpeg', 'Bilder/CrazyHistory/25.jpeg'
-        ],
-    };
+    'Crazy History': ['1.jpeg', '2.jpeg','3.jpeg','4.jpeg',
+      '19.jpeg','18.jpeg','11.jpeg','10.jpeg','5.jpeg',
+      '20.jpeg','17.jpeg','12.jpeg','9.jpeg','6.jpeg',
+      '21.jpeg','16.jpeg','13.jpeg','8.jpeg','7.jpeg',
+      '22.jpeg','15.jpeg','14.jpeg','23.jpeg', '24.jpeg', '25.jpeg']
+};
 
     const slideshowImagesCombinations = {
         'WW1_Dark': ['Bilder/WW1/Dark/1.jpeg', 'Bilder/WW1/Dark/2.jpeg','Bilder/WW1/Dark/3.jpeg', 'Bilder/WW1/Dark/4.jpeg','Bilder/WW1/Dark/5.jpeg', 
