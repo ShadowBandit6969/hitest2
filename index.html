@@ -178,6 +178,14 @@
       background-color: #e0e0e0;
     }
 
+#welcomeScreen h2.subtitle {
+  font-size: clamp(1.2em, 4vw, 2em);
+  font-weight: 300;
+  margin-top: 0.5em;
+  opacity: 0.9;
+}
+
+    
     /* Funken & Nebel */
     .sparkles-container, .fog-container {
       position: absolute;
@@ -223,7 +231,12 @@
 <body>
 
   <!-- Welcome -->
-  <div id="welcomeScreen"><h1>AI Monetization</h1></div>
+<!-- Welcome -->
+<div id="welcomeScreen">
+  <h1>AI Monetization</h1>
+  <h2 class="subtitle">Deniz Herrnreither</h2>
+</div>
+
 
    <div id="menu1" style="display: none;">
     <div class="button" onclick="selectOption('WW2')">WW2</div>
